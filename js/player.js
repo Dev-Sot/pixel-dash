@@ -7,13 +7,18 @@ window.PD = window.PD || {};
 (function(){
   const IDLE = { cols: 10, rows: 1, fw: 46, fh: 55, count: 10 };
   const WALK = { cols: 2, rows: 6, fw: 90, fh: 58, count: 12 };
-  const GRAVITY = 0.5, JUMP_V = -8.2, MOVE_SPEED = 1.5, MAX_FALL = 7, DRAW_H = 26;
+  const GRAVITY = 0.52, JUMP_V = -8.4, MOVE_SPEED = 1.8, MAX_FALL = 7.5, DRAW_H = 26;
   const FACES_RIGHT_BY_DEFAULT = true;
+  // "coyote time" (saltar poco despues de dejar el borde) + buffer de salto
+  // (que un tap de salto un poco antes de aterrizar igual cuente) - sin esto
+  // el salto se siente exigente/injusto, sobre todo combinado con movimiento.
+  const COYOTE_FRAMES = 6, JUMP_BUFFER_FRAMES = 8;
 
   function createPlayer(x, y){
     return {
       x, y, w: 10, h: 14, vx: 0, vy: 0,
-      onGround: false, facing: 1, animTime: 0, dead: false, wasOnGround: false
+      onGround: false, facing: 1, animTime: 0, dead: false, wasOnGround: false,
+      coyoteTimer: 0, jumpBufferTimer: 0
     };
   }
 
@@ -25,9 +30,15 @@ window.PD = window.PD || {};
     if(input.right){ moveX += 1; player.facing = 1; }
     player.vx = moveX * MOVE_SPEED;
 
-    if(input.consumeJumpPressed() && player.onGround){
+    player.coyoteTimer = player.onGround ? COYOTE_FRAMES : Math.max(0, player.coyoteTimer - dtFrames);
+    if(input.consumeJumpPressed()) player.jumpBufferTimer = JUMP_BUFFER_FRAMES;
+    else player.jumpBufferTimer = Math.max(0, player.jumpBufferTimer - dtFrames);
+
+    if(player.jumpBufferTimer > 0 && player.coyoteTimer > 0){
       player.vy = JUMP_V;
       player.onGround = false;
+      player.coyoteTimer = 0;
+      player.jumpBufferTimer = 0;
       PD.audio.sfxJump();
       spawnDust(particles, player.x + player.w/2, player.y + player.h, 5);
     }
