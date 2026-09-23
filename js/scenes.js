@@ -1,15 +1,18 @@
-// ---------- maquina de estados: menu / playing / paused / levelComplete / gameOver / victory / credits ----------
+// ---------- maquina de estados: menu / levelSelect / settings / playing / paused / levelComplete / gameOver / victory / credits ----------
 window.PD = window.PD || {};
 
 (function(){
   const $ = (id) => document.getElementById(id);
   const STORAGE_KEY = 'pixelDashProgress';
+  const OVERLAY_IDS = ['startOverlay','levelSelectOverlay','settingsOverlay','creditsOverlay',
+    'pauseOverlay','levelCompleteOverlay','gameOverOverlay','victoryOverlay'];
 
   let state = 'menu';
   let levelIndex = 0;
   let levelDef = null, level = null, player = null, particles = [];
   let camX = 0, coinsThisLevel = 0, totalCoinsInLevel = 0;
   let progress = { unlocked: 0, bestCoins: [] };
+  let menuIndex = 0;
 
   function loadProgress(){
     try{
@@ -23,16 +26,28 @@ window.PD = window.PD || {};
   }
 
   function hideAllOverlays(){
-    ['startOverlay','creditsOverlay','pauseOverlay','levelCompleteOverlay','gameOverOverlay','victoryOverlay']
-      .forEach(id => $(id) && $(id).classList.add('hidden'));
+    OVERLAY_IDS.forEach(id => $(id) && $(id).classList.add('hidden'));
   }
   function show(id){ hideAllOverlays(); const el = $(id); if(el) el.classList.remove('hidden'); }
+
+  // ---------- menu principal (navegable con flechas) ----------
+  function menuItems(){ return Array.from(document.querySelectorAll('#menuNav .menuItem')); }
+  function setMenuIndex(i){
+    const items = menuItems();
+    if(!items.length) return;
+    menuIndex = (i + items.length) % items.length;
+    items.forEach((el, idx) => el.classList.toggle('is-selected', idx === menuIndex));
+  }
+  function activateMenuIndex(){
+    const items = menuItems();
+    if(items[menuIndex]) items[menuIndex].click();
+  }
 
   function goMenu(){
     state = 'menu';
     PD.audio.stopMusic();
     $('hud').classList.add('hidden');
-    updateMenuLevelButtons();
+    setMenuIndex(0);
     show('startOverlay');
   }
 
@@ -41,13 +56,20 @@ window.PD = window.PD || {};
     if(!wrap) return;
     wrap.innerHTML = '';
     PD.LEVELS.forEach((lv, i) => {
+      const locked = i > progress.unlocked;
       const btn = document.createElement('button');
       btn.className = 'btn small';
-      btn.textContent = (i+1) + (i > progress.unlocked ? ' 🔒' : '');
-      btn.disabled = i > progress.unlocked;
+      btn.textContent = String(i + 1);
+      btn.disabled = locked;
+      if(locked) btn.title = 'Bloqueado';
       btn.addEventListener('click', () => startLevel(i));
       wrap.appendChild(btn);
     });
+  }
+
+  function updateSettingsButtons(){
+    $('toggleMusicBtn').textContent = 'MÚSICA: ' + (PD.audio.isMusicMuted() ? 'OFF' : 'ON');
+    $('toggleSfxBtn').textContent = 'EFECTOS: ' + (PD.audio.isSfxMuted() ? 'OFF' : 'ON');
   }
 
   function startLevel(index){
@@ -146,7 +168,22 @@ window.PD = window.PD || {};
   }
 
   function bindButtons(){
-    $('startBtn').addEventListener('click', () => startLevel(0));
+    $('startBtn').addEventListener('click', () => startLevel(progress.unlocked));
+    $('levelsBtn').addEventListener('click', () => { updateMenuLevelButtons(); show('levelSelectOverlay'); });
+    $('levelsBackBtn').addEventListener('click', () => goMenu());
+    $('settingsBtn').addEventListener('click', () => { updateSettingsButtons(); show('settingsOverlay'); });
+    $('settingsBackBtn').addEventListener('click', () => goMenu());
+    $('toggleMusicBtn').addEventListener('click', () => {
+      const willMute = !PD.audio.isMusicMuted();
+      PD.audio.setMusicMuted(willMute);
+      updateSettingsButtons();
+      if(!willMute && state === 'playing') PD.audio.startMusic();
+    });
+    $('toggleSfxBtn').addEventListener('click', () => {
+      PD.audio.setSfxMuted(!PD.audio.isSfxMuted());
+      updateSettingsButtons();
+      PD.audio.sfxUi();
+    });
     $('creditsBtn').addEventListener('click', () => show('creditsOverlay'));
     $('creditsBackBtn').addEventListener('click', () => goMenu());
     $('pauseBtn').addEventListener('click', () => pause());
@@ -161,8 +198,16 @@ window.PD = window.PD || {};
     $('muteBtn').addEventListener('click', () => {
       const muted = !PD.audio.isMuted();
       PD.audio.setMuted(muted);
-      $('muteBtn').textContent = muted ? '🔇' : '🔊';
+      $('muteBtn').textContent = muted ? 'MUTO' : 'SON';
       if(!muted && state === 'playing') PD.audio.startMusic();
+    });
+
+    menuItems().forEach((el, idx) => el.addEventListener('mouseenter', () => setMenuIndex(idx)));
+    window.addEventListener('keydown', (e) => {
+      if(state !== 'menu') return;
+      if(['ArrowDown','KeyS'].includes(e.code)){ e.preventDefault(); setMenuIndex(menuIndex + 1); PD.audio.sfxUi(); }
+      else if(['ArrowUp','KeyW'].includes(e.code)){ e.preventDefault(); setMenuIndex(menuIndex - 1); PD.audio.sfxUi(); }
+      else if(['Enter','Space'].includes(e.code)){ e.preventDefault(); activateMenuIndex(); }
     });
   }
 

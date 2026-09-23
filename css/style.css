@@ -39,6 +39,7 @@ canvas{
   font-family:inherit; font-size:12px; width:28px; height:28px; border-radius:6px;
   cursor:pointer; display:flex; align-items:center; justify-content:center;
 }
+.iconBtn.text{ width:auto; padding:0 8px; font-size:7px; letter-spacing:1px; }
 .overlay{
   position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
   justify-content:center; gap:12px; text-align:center; padding:16px;
@@ -81,4 +82,73 @@ canvas{
   background:rgba(255,255,255,.12); color:var(--ink); font-size:18px;
   display:flex; align-items:center; justify-content:center; text-align:center;
   backdrop-filter:blur(2px); pointer-events:auto;
+}
+
+/* ---------- menu principal ---------- */
+.menuOverlay{
+  flex-direction:row; align-items:stretch; justify-content:flex-start;
+  padding:0; gap:0; background:#000;
+}
+.menuScene{
+  position:relative; flex:1; overflow:hidden;
+  background:#0a1420 url('../assets/backgrounds/back.png') center 60%/cover no-repeat;
+}
+.menuVignette{
+  position:absolute; inset:0;
+  background:
+    linear-gradient(90deg, rgba(5,6,10,.85) 0%, rgba(5,6,10,0) 26%),
+    linear-gradient(0deg, rgba(5,6,10,.75) 0%, rgba(5,6,10,0) 45%),
+    radial-gradient(120% 90% at 50% 100%, rgba(5,6,10,0) 40%, rgba(5,6,10,.55) 100%);
+}
+.menuGround{
+  position:absolute; left:0; right:0; bottom:0; height:14%;
+  background:linear-gradient(180deg,#3f7d3b 0%,#3f7d3b 22%,#6b4a2f 22%,#4a3323 100%);
+  box-shadow:0 -2px 0 rgba(0,0,0,.3) inset;
+}
+.menuPalm{
+  position:absolute; left:8%; bottom:13%; width:79px; height:176px;
+  background-image:url('../assets/sprites/props/palm.png');
+  background-size:contain; background-repeat:no-repeat;
+  image-rendering:pixelated; image-rendering:crisp-edges;
+  transform:scale(1.5); transform-origin:bottom center;
+  opacity:.85; filter:brightness(.7) drop-shadow(0 4px 4px rgba(0,0,0,.4));
+}
+.menuHero{
+  position:absolute; left:38%; bottom:13%; width:46px; height:55px;
+  background-image:url('../assets/sprites/player/idle.png');
+  background-position:0 0; background-repeat:no-repeat;
+  image-rendering:pixelated; image-rendering:crisp-edges;
+  transform:scale(3.4); transform-origin:bottom center;
+  filter:drop-shadow(0 6px 4px rgba(0,0,0,.5));
+}
+.menuPanel{
+  position:relative; z-index:2; width:clamp(160px,32%,260px);
+  display:flex; flex-direction:column; justify-content:center; gap:clamp(14px,4vh,26px);
+  padding:clamp(14px,4vw,28px); background:linear-gradient(180deg,#0c0c14,#151520 60%,#0c0c14);
+  border-right:3px solid #000; box-shadow:6px 0 18px rgba(0,0,0,.5);
+}
+.menuTitle{
+  font-size:clamp(16px,3.6vw,26px); line-height:1.25; color:var(--accent);
+  text-shadow:2px 2px 0 var(--accent2), 4px 4px 0 #000; letter-spacing:1px; text-align:left;
+}
+.menuNav{ display:flex; flex-direction:column; gap:clamp(8px,2.2vh,16px); align-items:flex-start; }
+.menuItem{
+  background:none; border:none; color:var(--muted); font-family:inherit;
+  font-size:clamp(9px,1.6vw,12px); letter-spacing:1px; padding:4px 0 4px 16px;
+  cursor:pointer; position:relative; text-align:left; pointer-events:auto;
+}
+.menuItem::before{
+  content:''; position:absolute; left:0; top:50%; transform:translateY(-50%);
+  border-style:solid; border-width:4px 0 4px 6px; border-color:transparent transparent transparent transparent;
+}
+.menuItem.is-selected{ color:var(--ink); }
+.menuItem.is-selected::before{ border-left-color:var(--accent); }
+.menuFooter{ font-size:6px; color:var(--muted); letter-spacing:1px; text-align:left; }
+@media (max-width:640px){
+  .menuOverlay{ flex-direction:column; }
+  .menuScene{ min-height:40%; }
+  .menuPanel{ width:auto; border-right:none; border-top:3px solid #000; box-shadow:0 -6px 18px rgba(0,0,0,.5); }
+  .menuTitle{ text-align:center; }
+  .menuNav{ align-items:center; }
+  .menuFooter{ text-align:center; }
 }
