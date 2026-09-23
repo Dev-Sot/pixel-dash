@@ -1,15 +1,26 @@
 // ---------- tilemap: colision, camara y dibujo de nivel ----------
-// Los tiles se dibujan con rectangulos de color (placeholder) hasta que se integre
-// el tileset real (SunnyLand). Cuando ese PNG este disponible en assets/sprites/tiles/,
-// drawTile() es el unico lugar a tocar para dibujar recortes del spritesheet en vez de color.
+// Arte real: "SunnyLand" de ansimuz (CC0). Si assets/sprites/tiles/tileset.png no
+// carga (por ejemplo si se abre el juego antes de copiar los packs), se cae a
+// rectangulos de color con THEMES como respaldo.
 window.PD = window.PD || {};
 
 (function(){
   const THEMES = {
-    day:   { skyTop:'#5ee1ff', skyBot:'#bdf3ff', hill:'#2f9e5a', hill2:'#256f42', ground:'#6b4a2f', groundTop:'#3f7d3b' },
-    dusk:  { skyTop:'#ff9e5e', skyBot:'#3a2b55', hill:'#7a4a6b', hill2:'#4a2e4d', ground:'#4a3326', groundTop:'#5c3a55' },
-    night: { skyTop:'#0d0d2b', skyBot:'#1c1c44', hill:'#232349', hill2:'#161630', ground:'#33263a', groundTop:'#2a2050' }
+    day:   { tint: null,                    ground:'#6b4a2f', groundTop:'#3f7d3b' },
+    dusk:  { tint: 'rgba(90,40,70,.35)',    ground:'#4a3326', groundTop:'#5c3a55' },
+    night: { tint: 'rgba(10,10,40,.55)',    ground:'#33263a', groundTop:'#2a2050' }
   };
+  // recortes fijos dentro de tileset.png (grilla de 16px; fila/columna 0 vienen vacias en el PNG)
+  const TILE_TOP = { sx: 16, sy: 16 }; // tierra con pasto
+  const TILE_FILL = { sx: 16, sy: 48 }; // tierra solida (sin pasto)
+
+  const PROPS = {
+    palm: { key:'propPalm', nw:79,  nh:176, drawH:70 },
+    tree: { key:'propTree', nw:119, nh:111, drawH:50 },
+    bush: { key:'propBush', nw:46,  nh:28,  drawH:16 },
+    rock: { key:'propRock', nw:28,  nh:15,  drawH:14 }
+  };
+  const GEM_FW = 15, GEM_FH = 13, GEM_FRAMES = 5;
 
   function isSolidAt(level, tx, ty){
     if(tx < 0 || tx >= level.width) return true;  // paredes invisibles en los bordes
@@ -62,70 +73,97 @@ window.PD = window.PD || {};
 
   function drawBackground(ctx, level, viewW, viewH, camX){
     const theme = THEMES[level.theme] || THEMES.day;
-    const g = ctx.createLinearGradient(0, 0, 0, viewH);
-    g.addColorStop(0, theme.skyTop);
-    g.addColorStop(1, theme.skyBot);
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, viewW, viewH);
-
-    // dos capas de colinas en parallax (placeholder de fondo)
-    ctx.fillStyle = theme.hill2;
-    drawHillLayer(ctx, viewW, viewH, camX * 0.25, 46, 26);
-    ctx.fillStyle = theme.hill;
-    drawHillLayer(ctx, viewW, viewH, camX * 0.5, 30, 18);
-  }
-  function drawHillLayer(ctx, viewW, viewH, offset, baseY, amp){
-    const span = 90;
-    ctx.beginPath();
-    ctx.moveTo(-20, viewH);
-    for(let x = -20; x <= viewW + 20; x += span){
-      const wx = x + offset;
-      const h = baseY + Math.abs(Math.sin(wx * 0.01)) * amp;
-      ctx.lineTo(x, viewH - h);
+    const bg = PD.assets.get('bgBack');
+    if(bg && PD.assets.ready('bgBack')){
+      const scale = viewH / bg.height;
+      const tileW = bg.width * scale;
+      let startX = -((camX * 0.3) % tileW);
+      if(startX > 0) startX -= tileW;
+      for(let x = startX; x < viewW; x += tileW){
+        ctx.drawImage(bg, 0, 0, bg.width, bg.height, x, 0, tileW, viewH);
+      }
+    } else {
+      ctx.fillStyle = '#5ee1ff';
+      ctx.fillRect(0, 0, viewW, viewH);
     }
-    ctx.lineTo(viewW + 20, viewH);
-    ctx.closePath();
-    ctx.fill();
+    if(theme.tint){
+      ctx.fillStyle = theme.tint;
+      ctx.fillRect(0, 0, viewW, viewH);
+    }
   }
 
-  function drawTile(ctx, ch, px, py, ts, theme){
+  function drawProps(ctx, level, camX, viewW){
+    if(!level.props) return;
+    for(const p of level.props){
+      const x = p.x - camX;
+      if(x < -100 || x > viewW + 100) continue;
+      const def = PROPS[p.type];
+      if(!def) continue;
+      const img = PD.assets.get(def.key);
+      const drawH = def.drawH, drawW = def.nw / def.nh * drawH;
+      if(img && PD.assets.ready(def.key)){
+        ctx.drawImage(img, 0, 0, def.nw, def.nh, x - drawW/2, p.y - drawH, drawW, drawH);
+      }
+    }
+  }
+
+  function drawTile(ctx, ch, px, py, ts, theme, isTop){
+    const tileset = PD.assets.get('tileset');
+    const tilesetReady = tileset && PD.assets.ready('tileset');
     if(ch === '#'){
-      ctx.fillStyle = theme.ground;
-      ctx.fillRect(px, py, ts, ts);
-      ctx.fillStyle = theme.groundTop;
-      ctx.fillRect(px, py, ts, 3);
+      const src = isTop ? TILE_TOP : TILE_FILL;
+      if(tilesetReady) ctx.drawImage(tileset, src.sx, src.sy, 16, 16, px, py, ts, ts);
+      else { ctx.fillStyle = theme.ground; ctx.fillRect(px, py, ts, ts); ctx.fillStyle = theme.groundTop; ctx.fillRect(px, py, ts, 3); }
     } else if(ch === '^'){
-      ctx.fillStyle = theme.ground;
-      ctx.fillRect(px, py, ts, ts);
-      ctx.fillStyle = '#ff5e5e';
-      ctx.beginPath();
-      ctx.moveTo(px, py + ts * 0.6);
-      ctx.lineTo(px + ts/2, py - 2);
-      ctx.lineTo(px + ts, py + ts * 0.6);
-      ctx.closePath();
-      ctx.fill();
+      if(tilesetReady) ctx.drawImage(tileset, TILE_FILL.sx, TILE_FILL.sy, 16, 16, px, py, ts, ts);
+      else { ctx.fillStyle = theme.ground; ctx.fillRect(px, py, ts, ts); }
+      const spikes = PD.assets.get('propSpikes');
+      if(spikes && PD.assets.ready('propSpikes')){
+        ctx.drawImage(spikes, 0, 0, 15, 10, px, py - 4, ts, ts * 10/15);
+      } else {
+        ctx.fillStyle = '#ff5e5e';
+        ctx.beginPath();
+        ctx.moveTo(px, py + ts * 0.6);
+        ctx.lineTo(px + ts/2, py - 2);
+        ctx.lineTo(px + ts, py + ts * 0.6);
+        ctx.closePath();
+        ctx.fill();
+      }
     }
   }
 
   function drawLevel(ctx, levelDef, level, camX, viewW, viewH){
     const theme = THEMES[level.theme] || THEMES.day;
     const ts = level.tileSize;
+
+    drawProps(ctx, level, camX, viewW);
+
     const x0 = Math.floor(camX / ts), x1 = Math.ceil((camX + viewW) / ts);
     for(let ty = 0; ty < level.rows; ty++){
       for(let tx = Math.max(0,x0); tx <= Math.min(level.width - 1, x1); tx++){
         const ch = levelDef.grid[ty][tx];
-        if(ch === '#' || ch === '^') drawTile(ctx, ch, tx*ts - camX, ty*ts, ts, theme);
+        if(ch === '#' || ch === '^'){
+          const isTop = ty === 0 || levelDef.grid[ty-1][tx] === '.';
+          drawTile(ctx, ch, tx*ts - camX, ty*ts, ts, theme, isTop);
+        }
       }
     }
+
     // monedas
+    const gem = PD.assets.get('itemGem'), gemReady = gem && PD.assets.ready('itemGem');
+    const gemFrame = Math.floor(Date.now() / 120) % GEM_FRAMES;
     for(const c of level.coins){
       if(c.taken) continue;
       const x = c.x - camX;
       if(x < -10 || x > viewW + 10) continue;
-      ctx.fillStyle = '#ffd35e';
-      ctx.beginPath(); ctx.arc(x, c.y, c.r, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#fff3c4';
-      ctx.beginPath(); ctx.arc(x - 1, c.y - 1, c.r*0.4, 0, Math.PI*2); ctx.fill();
+      if(gemReady){
+        ctx.drawImage(gem, gemFrame*GEM_FW, 0, GEM_FW, GEM_FH, x - GEM_FW/2, c.y - GEM_FH/2, GEM_FW, GEM_FH);
+      } else {
+        ctx.fillStyle = '#ffd35e';
+        ctx.beginPath(); ctx.arc(x, c.y, c.r, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fff3c4';
+        ctx.beginPath(); ctx.arc(x - 1, c.y - 1, c.r*0.4, 0, Math.PI*2); ctx.fill();
+      }
     }
     // meta
     if(level.goal){

@@ -17,10 +17,18 @@ window.PD = window.PD || {};
     if(loaded >= pending && onDoneCb){ const cb = onDoneCb; onDoneCb = null; cb(); }
   }
 
-  // Manifest de sprites del jugador (ya incluidos). Tiles/fondos reales de SunnyLand
-  // se agregan aca cuando esten disponibles: loadImage('tiles', 'assets/sprites/tiles/tileset.png')
   loadImage('playerIdle', 'assets/sprites/player/idle.png');
   loadImage('playerWalk', 'assets/sprites/player/walk.png');
+
+  // entorno (SunnyLand - ansimuz, CC0)
+  loadImage('tileset', 'assets/sprites/tiles/tileset.png');
+  loadImage('bgBack', 'assets/backgrounds/back.png');
+  loadImage('itemGem', 'assets/sprites/items/gem.png');
+  loadImage('propSpikes', 'assets/sprites/props/spikes.png');
+  loadImage('propPalm', 'assets/sprites/props/palm.png');
+  loadImage('propTree', 'assets/sprites/props/tree.png');
+  loadImage('propBush', 'assets/sprites/props/bush.png');
+  loadImage('propRock', 'assets/sprites/props/rock.png');
 
   window.PD.assets = {
     get(key){ return images[key] || null; },

@@ -64,6 +64,7 @@ window.PD = window.PD || {};
     $('hud').classList.remove('hidden');
     updateHud();
     PD.audio.ensureAudio();
+    PD.audio.setTrack(level.music);
     PD.audio.startMusic();
   }
 

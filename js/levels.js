@@ -40,7 +40,16 @@ window.PD = window.PD || {};
     platform(g, 43, 44, 6);
     coinsRow(g, 43, 44, 5);
     put(g, 47, ROWS-3, 'F');
-    return { name: 'Nivel 1 - Bosque de entrada', tileSize: 16, rows: ROWS, width: W, grid: g, theme: 'day' };
+    const groundY = (ROWS-2) * 16;
+    return {
+      name: 'Nivel 1 - Bosque de entrada', tileSize: 16, rows: ROWS, width: W, grid: g, theme: 'day',
+      music: 'assets/audio/music/level1-day.ogg',
+      props: [
+        { type:'palm', x: 4*16, y: groundY }, { type:'bush', x: 8*16, y: groundY },
+        { type:'tree', x: 24*16, y: groundY }, { type:'rock', x: 36*16, y: groundY },
+        { type:'palm', x: 45*16, y: groundY }, { type:'bush', x: 12*16, y: groundY }
+      ]
+    };
   }
 
   // ---------- nivel 2: Colinas rotas ----------
@@ -71,7 +80,17 @@ window.PD = window.PD || {};
     floorRange(g, 54, 63);
     coinsRow(g, 56, 58, 6);
     put(g, 61, ROWS-3, 'F');
-    return { name: 'Nivel 2 - Colinas rotas', tileSize: 16, rows: ROWS, width: W, grid: g, theme: 'dusk' };
+    const groundY = (ROWS-2) * 16;
+    return {
+      name: 'Nivel 2 - Colinas rotas', tileSize: 16, rows: ROWS, width: W, grid: g, theme: 'dusk',
+      music: 'assets/audio/music/level2-dusk.ogg',
+      props: [
+        { type:'tree', x: 3*16, y: groundY }, { type:'rock', x: 8*16, y: groundY },
+        { type:'bush', x: 17*16, y: groundY }, { type:'palm', x: 28*16, y: groundY },
+        { type:'rock', x: 40*16, y: groundY }, { type:'tree', x: 47*16, y: groundY },
+        { type:'bush', x: 57*16, y: groundY }
+      ]
+    };
   }
 
   // ---------- nivel 3: Torre final ----------
@@ -108,7 +127,16 @@ window.PD = window.PD || {};
     floorRange(g, 71, 77);
     coinsRow(g, 72, 75, 6);
     put(g, 75, ROWS-3, 'F');
-    return { name: 'Nivel 3 - Torre final', tileSize: 16, rows: ROWS, width: W, grid: g, theme: 'night' };
+    const groundY = (ROWS-2) * 16;
+    return {
+      name: 'Nivel 3 - Torre final', tileSize: 16, rows: ROWS, width: W, grid: g, theme: 'night',
+      music: 'assets/audio/music/level3-night.ogg',
+      props: [
+        { type:'rock', x: 3*16, y: groundY }, { type:'tree', x: 8*16, y: groundY },
+        { type:'bush', x: 15*16, y: groundY }, { type:'rock', x: 24*16, y: groundY },
+        { type:'palm', x: 46*16, y: groundY }, { type:'tree', x: 74*16, y: groundY }
+      ]
+    };
   }
 
   window.PD.LEVELS = [buildLevel1(), buildLevel2(), buildLevel3()];
@@ -136,7 +164,8 @@ window.PD = window.PD || {};
     return {
       name: levelDef.name, tileSize, rows, width,
       widthPx: width * tileSize, heightPx: rows * tileSize,
-      solids, hazards, coins, goal, playerStart, theme: levelDef.theme
+      solids, hazards, coins, goal, playerStart, theme: levelDef.theme,
+      music: levelDef.music, props: levelDef.props
     };
   };
 })();

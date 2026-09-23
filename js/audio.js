@@ -3,7 +3,12 @@ window.PD = window.PD || {};
 
 (function(){
   let actx = null, muted = false, musicTimer = null;
-  let musicFile = null, sfxFiles = {}; // se llenan solo si hay assets/audio/*, si no se usa el sintetizador
+  let musicFile = null;
+  const sfxFiles = {
+    jump: 'assets/audio/sfx/jump.wav',
+    coin: 'assets/audio/sfx/coin.wav',
+    hit: 'assets/audio/sfx/hit.wav'
+  };
 
   function ensureAudio(){
     if(!actx){
@@ -30,7 +35,12 @@ window.PD = window.PD || {};
   function playFileSfx(key){
     const src = sfxFiles[key];
     if(!src || muted) return false;
-    try{ const a = new Audio(src); a.volume = 0.5; a.play(); return true; }catch(e){ return false; }
+    try{
+      const a = new Audio(src); a.volume = 0.5;
+      const p = a.play();
+      if(p && p.catch) p.catch(() => {});
+      return true;
+    }catch(e){ return false; }
   }
 
   function sfxJump(){ if(!playFileSfx('jump')) beep(420, 0.14, 'square', 0.14, 760); }
@@ -46,7 +56,9 @@ window.PD = window.PD || {};
     if(musicFile){
       try{
         musicEl = new Audio(musicFile);
-        musicEl.loop = true; musicEl.volume = 0.35; musicEl.play();
+        musicEl.loop = true; musicEl.volume = 0.35;
+        const p = musicEl.play();
+        if(p && p.catch) p.catch(() => {}); // evita rechazo no manejado si se pausa antes de arrancar
         return;
       }catch(e){ musicEl = null; }
     }
@@ -79,6 +91,7 @@ window.PD = window.PD || {};
   window.PD.audio = {
     ensureAudio, sfxJump, sfxCoin, sfxHit, sfxJingleGood, sfxJingleBad,
     startMusic, stopMusic, pauseMusic, resumeMusic,
+    setTrack(src){ musicFile = src || null; },
     isMuted(){ return muted; },
     setMuted(v){ muted = v; if(muted) stopMusic(); }
   };
