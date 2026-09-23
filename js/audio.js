@@ -55,6 +55,7 @@ window.PD = window.PD || {};
   }
 
   function sfxJump(){ if(sfxMuted) return; if(!playFileSfx('jump')) beep(420, 0.14, 'square', 0.14, 760); }
+  function sfxRoll(){ if(sfxMuted) return; beep(200, 0.12, 'triangle', 0.1, 90); }
   function sfxCoin(){ if(sfxMuted) return; if(!playFileSfx('coin')){ beep(880, 0.08, 'square', 0.12, 1320); setTimeout(()=>beep(1320,0.08,'square',0.1), 60); } }
   function sfxHit(){ if(sfxMuted) return; if(!playFileSfx('hit')) beep(160, 0.35, 'sawtooth', 0.18, 40); }
   function sfxJingleGood(){ if(sfxMuted) return; beep(523,0.1,'square',0.12,660); setTimeout(()=>beep(659,0.1,'square',0.12),100); setTimeout(()=>beep(880,0.18,'square',0.12),200); }
@@ -101,7 +102,7 @@ window.PD = window.PD || {};
   function resumeMusic(){ if(!musicMuted) startMusic(); }
 
   window.PD.audio = {
-    ensureAudio, sfxJump, sfxCoin, sfxHit, sfxJingleGood, sfxJingleBad, sfxUi,
+    ensureAudio, sfxJump, sfxRoll, sfxCoin, sfxHit, sfxJingleGood, sfxJingleBad, sfxUi,
     startMusic, stopMusic, pauseMusic, resumeMusic,
     setTrack(src){ musicFile = src || null; },
     isMusicMuted(){ return musicMuted; },

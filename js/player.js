@@ -1,40 +1,68 @@
-// ---------- jugador: fisica, estado y animacion ----------
-// El pack del personaje solo trae "idle" (10 frames de 46x55) y "walk" (grilla 2x6
-// de 90x58, 12 frames). No hay salto: se sintetiza con squash/stretch + rotacion
-// leve sobre el frame de idle, en vez de mezclar sprites de otro pack.
+// ---------- jugador: fisica, estado y animacion (Hero Knight de Sven Thole) ----------
 window.PD = window.PD || {};
 
 (function(){
-  const IDLE = { cols: 10, rows: 1, fw: 46, fh: 55, count: 10 };
-  const WALK = { cols: 2, rows: 6, fw: 90, fh: 58, count: 12 };
-  const GRAVITY = 0.52, JUMP_V = -8.4, MOVE_SPEED = 1.8, MAX_FALL = 7.5, DRAW_H = 26;
-  const FACES_RIGHT_BY_DEFAULT = true;
-  // "coyote time" (saltar poco despues de dejar el borde) + buffer de salto
-  // (que un tap de salto un poco antes de aterrizar igual cuente) - sin esto
-  // el salto se siente exigente/injusto, sobre todo combinado con movimiento.
+  const FW = 100, FH = 55; // las 5 tiras comparten el mismo lienzo por frame
+  const IDLE = { key: 'heroIdle', count: 8 };
+  const RUN = { key: 'heroRun', count: 10 };
+  const JUMP = { key: 'heroJump', count: 3 };
+  const FALL = { key: 'heroFall', count: 4 };
+  const ROLL = { key: 'heroRoll', count: 9 };
+
+  // el personaje no esta centrado en su lienzo de 100x55 (deja espacio a la
+  // derecha para el barrido de espada): ancla real medida en los sprites.
+  const PIVOT_X = 38.7, FEET_Y = 52;
+
+  const GRAVITY = 0.45, JUMP_V = -9.0, MOVE_SPEED = 2.0, MAX_FALL = 7.5, DRAW_H = 32;
   const COYOTE_FRAMES = 6, JUMP_BUFFER_FRAMES = 8;
+  const ROLL_SPEED = 4.0, ROLL_FRAMES = 22, ROLL_COOLDOWN_FRAMES = 16;
+  const FACES_RIGHT_BY_DEFAULT = true;
 
   function createPlayer(x, y){
     return {
-      x, y, w: 10, h: 14, vx: 0, vy: 0,
+      x, y, w: 10, h: 16, vx: 0, vy: 0,
       onGround: false, facing: 1, animTime: 0, dead: false, wasOnGround: false,
-      coyoteTimer: 0, jumpBufferTimer: 0
+      coyoteTimer: 0, jumpBufferTimer: 0,
+      rolling: false, rollTimer: 0, rollCooldown: 0, rollDir: 1
     };
   }
 
   function update(player, level, dtFrames, input, particles){
     if(player.dead) return { justLanded: false, hazard: false, fellOff: false, reachedGoal: false, coinsGot: [] };
 
-    let moveX = 0;
-    if(input.left){ moveX -= 1; player.facing = -1; }
-    if(input.right){ moveX += 1; player.facing = 1; }
-    player.vx = moveX * MOVE_SPEED;
-
+    // "onGround" parpadea false un frame de cada tanto por como cae la
+    // gravedad contra el piso exacto (inofensivo para el salto porque usa
+    // coyote time, pero la rodada chequeaba onGround directo y podia
+    // "tragarse" el input en silencio). Se actualiza coyoteTimer primero y
+    // se usa "recien en el piso" para las dos acciones.
     player.coyoteTimer = player.onGround ? COYOTE_FRAMES : Math.max(0, player.coyoteTimer - dtFrames);
+    const recentlyGrounded = player.onGround || player.coyoteTimer > 0;
+
+    player.rollCooldown = Math.max(0, player.rollCooldown - dtFrames);
+    if(input.consumeRollPressed() && recentlyGrounded && !player.rolling && player.rollCooldown <= 0){
+      player.rolling = true;
+      player.rollTimer = ROLL_FRAMES;
+      player.rollDir = player.facing;
+      player.rollCooldown = ROLL_FRAMES + ROLL_COOLDOWN_FRAMES;
+      PD.audio.sfxRoll();
+      spawnDust(particles, player.x + player.w/2, player.y + player.h, 5);
+    }
+
+    let moveX = 0;
+    if(player.rolling){
+      moveX = player.rollDir;
+      player.rollTimer -= dtFrames;
+      if(player.rollTimer <= 0) player.rolling = false;
+    } else {
+      if(input.left){ moveX -= 1; player.facing = -1; }
+      if(input.right){ moveX += 1; player.facing = 1; }
+    }
+    player.vx = player.rolling ? moveX * ROLL_SPEED : moveX * MOVE_SPEED;
+
     if(input.consumeJumpPressed()) player.jumpBufferTimer = JUMP_BUFFER_FRAMES;
     else player.jumpBufferTimer = Math.max(0, player.jumpBufferTimer - dtFrames);
 
-    if(player.jumpBufferTimer > 0 && player.coyoteTimer > 0){
+    if(!player.rolling && player.jumpBufferTimer > 0 && player.coyoteTimer > 0){
       player.vy = JUMP_V;
       player.onGround = false;
       player.coyoteTimer = 0;
@@ -58,7 +86,7 @@ window.PD = window.PD || {};
     const justLanded = player.onGround && !player.wasOnGround;
     if(justLanded) spawnDust(particles, player.x + player.w/2, player.y + player.h, 6);
 
-    const hazard = res.hazard;
+    const hazard = PD.tilemap.overlapsHazard(level, player) && !player.rolling; // la rodada esquiva los pinchos
     const fellOff = player.y > level.heightPx + 40;
 
     let reachedGoal = false;
@@ -96,39 +124,37 @@ window.PD = window.PD || {};
     const assets = PD.assets;
     const moving = Math.abs(player.vx) > 0.05;
     const cx = player.x + player.w/2 - camX, feetY = player.y + player.h;
-    let key, sheet, frameIndex, tilt = 0, squashX = 1, squashY = 1;
+    let sheet, frameIndex;
 
-    if(!player.onGround){
-      key = 'playerIdle'; sheet = IDLE; frameIndex = 0;
-      tilt = player.vy < 0 ? -0.12 * player.facing : 0.12 * player.facing;
-      squashY = player.vy < 0 ? 1.12 : 0.92;
-      squashX = player.vy < 0 ? 0.9 : 1.08;
+    if(player.rolling){
+      sheet = ROLL;
+      frameIndex = Math.min(sheet.count - 1, Math.floor((1 - player.rollTimer / ROLL_FRAMES) * sheet.count));
+    } else if(!player.onGround){
+      sheet = player.vy < 0 ? JUMP : FALL;
+      frameIndex = Math.floor(player.animTime * 0.2) % sheet.count;
     } else if(moving){
-      key = 'playerWalk'; sheet = WALK;
-      frameIndex = Math.floor(player.animTime * 0.35) % sheet.count;
+      sheet = RUN;
+      frameIndex = Math.floor(player.animTime * 0.4) % sheet.count;
     } else {
-      key = 'playerIdle'; sheet = IDLE;
-      frameIndex = Math.floor(player.animTime * 0.18) % sheet.count;
+      sheet = IDLE;
+      frameIndex = Math.floor(player.animTime * 0.15) % sheet.count;
     }
-    const img = assets.get(key);
 
-    if(!img || !assets.ready(key)){
-      // fallback: rectangulo simple si la imagen no cargo
+    const img = assets.get(sheet.key);
+    if(!img || !assets.ready(sheet.key)){
       ctx.fillStyle = '#5ee1ff';
       ctx.fillRect(cx - player.w/2, feetY - player.h, player.w, player.h);
       return;
     }
 
-    const col = frameIndex % sheet.cols, row = Math.floor(frameIndex / sheet.cols);
-    const sx = col * sheet.fw, sy = row * sheet.fh;
-    const drawH = DRAW_H * squashY, drawW = (sheet.fw / sheet.fh) * DRAW_H * squashX;
+    const sx = frameIndex * FW, sy = 0;
+    const scale = DRAW_H / FH, drawW = FW * scale, drawH = FH * scale;
     const flip = (player.facing < 0) === FACES_RIGHT_BY_DEFAULT;
 
     ctx.save();
-    ctx.translate(cx, feetY - drawH/2);
-    ctx.rotate(tilt);
+    ctx.translate(cx, feetY);
     if(flip) ctx.scale(-1, 1);
-    ctx.drawImage(img, sx, sy, sheet.fw, sheet.fh, -drawW/2, -drawH/2, drawW, drawH);
+    ctx.drawImage(img, sx, sy, FW, FH, -PIVOT_X * scale, -FEET_Y * scale, drawW, drawH);
     ctx.restore();
   }
 

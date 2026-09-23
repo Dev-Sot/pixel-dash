@@ -83,6 +83,7 @@ canvas{
   display:flex; align-items:center; justify-content:center; text-align:center;
   backdrop-filter:blur(2px); pointer-events:auto;
 }
+.tbtn.small{ width:42px; height:42px; font-size:8px; align-self:flex-end; }
 
 /* ---------- menu principal ---------- */
 .menuOverlay{
@@ -114,11 +115,11 @@ canvas{
   opacity:.85; filter:brightness(.7) drop-shadow(0 4px 4px rgba(0,0,0,.4));
 }
 .menuHero{
-  position:absolute; left:38%; bottom:13%; width:46px; height:55px;
-  background-image:url('../assets/sprites/player/idle.png');
+  position:absolute; left:38%; bottom:13%; width:100px; height:55px;
+  background-image:url('../assets/sprites/hero/idle.png');
   background-position:0 0; background-repeat:no-repeat;
   image-rendering:pixelated; image-rendering:crisp-edges;
-  transform:scale(3.4); transform-origin:bottom center;
+  transform:scale(2.6); transform-origin:38.7px 52px;
   filter:drop-shadow(0 6px 4px rgba(0,0,0,.5));
 }
 .menuPanel{

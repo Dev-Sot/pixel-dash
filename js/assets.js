@@ -17,8 +17,12 @@ window.PD = window.PD || {};
     if(loaded >= pending && onDoneCb){ const cb = onDoneCb; onDoneCb = null; cb(); }
   }
 
-  loadImage('playerIdle', 'assets/sprites/player/idle.png');
-  loadImage('playerWalk', 'assets/sprites/player/walk.png');
+  // personaje jugable (Hero Knight - Sven Thole)
+  loadImage('heroIdle', 'assets/sprites/hero/idle.png');
+  loadImage('heroRun', 'assets/sprites/hero/run.png');
+  loadImage('heroJump', 'assets/sprites/hero/jump.png');
+  loadImage('heroFall', 'assets/sprites/hero/fall.png');
+  loadImage('heroRoll', 'assets/sprites/hero/roll.png');
 
   // entorno (SunnyLand - ansimuz, CC0)
   loadImage('tileset', 'assets/sprites/tiles/tileset.png');

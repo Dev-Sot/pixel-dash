@@ -34,9 +34,11 @@ window.PD = window.PD || {};
   }
 
   // resuelve un rectangulo movil contra la grilla solida, un eje a la vez
+  // (los pinchos NO son solidos: se detectan aparte con overlapsHazard, asi
+  // la rodada puede atravesarlos de verdad en vez de chocar como con una pared)
   function moveAndCollide(level, rect, dx, dy){
     const ts = level.tileSize;
-    let hitX = false, hitY = false, hazard = false;
+    let hitX = false, hitY = false;
 
     rect.x += dx;
     if(dx !== 0){
@@ -46,7 +48,6 @@ window.PD = window.PD || {};
         if(isSolidAt(level, txEdge, ty)){
           rect.x = dx > 0 ? txEdge * ts - rect.w : (txEdge + 1) * ts;
           hitX = true;
-          if(isHazardAt(level, txEdge, ty)) hazard = true;
           break;
         }
       }
@@ -59,12 +60,21 @@ window.PD = window.PD || {};
         if(isSolidAt(level, tx, tyEdge)){
           rect.y = dy > 0 ? tyEdge * ts - rect.h : (tyEdge + 1) * ts;
           hitY = true;
-          if(isHazardAt(level, tx, tyEdge)) hazard = true;
           break;
         }
       }
     }
-    return { hitX, hitY, hazard };
+    return { hitX, hitY };
+  }
+
+  function overlapsHazard(level, rect){
+    const ts = level.tileSize;
+    const x0 = Math.floor(rect.x / ts), x1 = Math.floor((rect.x + rect.w - 1) / ts);
+    const y0 = Math.floor(rect.y / ts), y1 = Math.floor((rect.y + rect.h - 1) / ts);
+    for(let ty = y0; ty <= y1; ty++)
+      for(let tx = x0; tx <= x1; tx++)
+        if(isHazardAt(level, tx, ty)) return true;
+    return false;
   }
 
   function cameraX(level, playerX, viewW){
@@ -179,5 +189,5 @@ window.PD = window.PD || {};
     }
   }
 
-  window.PD.tilemap = { isSolidAt, isHazardAt, moveAndCollide, cameraX, drawBackground, drawLevel, THEMES };
+  window.PD.tilemap = { isSolidAt, isHazardAt, moveAndCollide, overlapsHazard, cameraX, drawBackground, drawLevel, THEMES };
 })();
