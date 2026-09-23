@@ -1,22 +1,21 @@
-// ---------- jugador: fisica, estado y animacion (Hero Knight de Sven Thole) ----------
+// ---------- jugador: fisica, estado y animacion (Foxy, pack SunnyLand de ansimuz, CC0) ----------
 window.PD = window.PD || {};
 
 (function(){
-  const FW = 100, FH = 55; // las 5 tiras comparten el mismo lienzo por frame
-  const IDLE = { key: 'heroIdle', count: 8 };
-  const RUN = { key: 'heroRun', count: 10 };
-  const JUMP = { key: 'heroJump', count: 3 };
-  const FALL = { key: 'heroFall', count: 4 };
-  const ROLL = { key: 'heroRoll', count: 9 };
+  const FW = 33, FH = 32; // las tiras comparten el mismo lienzo por frame
+  const IDLE = { key: 'foxIdle', count: 4 };
+  const RUN = { key: 'foxRun', count: 6 };
+  const JUMP = { key: 'foxJump', count: 1, frame: 0 }; // subiendo
+  const FALL = { key: 'foxJump', count: 1, frame: 1 }; // cayendo (2do frame del mismo sheet)
+  const ROLL = { key: 'foxRoll', count: 4 };
 
-  // el personaje no esta centrado en su lienzo de 100x55 (deja espacio a la
-  // derecha para el barrido de espada): ancla real medida en los sprites.
-  const PIVOT_X = 38.7, FEET_Y = 52;
+  // el zorro no esta centrado en su lienzo de 33x32: ancla real medida en los sprites.
+  const PIVOT_X = 15, FEET_Y = 32;
 
-  const GRAVITY = 0.45, JUMP_V = -9.0, MOVE_SPEED = 2.0, MAX_FALL = 7.5, DRAW_H = 32;
+  const GRAVITY = 0.45, JUMP_V = -9.0, MOVE_SPEED = 2.0, MAX_FALL = 7.5, DRAW_H = 26;
   const COYOTE_FRAMES = 6, JUMP_BUFFER_FRAMES = 8;
   const ROLL_SPEED = 4.0, ROLL_FRAMES = 22, ROLL_COOLDOWN_FRAMES = 16;
-  const FACES_RIGHT_BY_DEFAULT = true;
+  const FACES_RIGHT_BY_DEFAULT = false; // el sprite mira a la izquierda por defecto
 
   function createPlayer(x, y){
     return {
@@ -28,7 +27,7 @@ window.PD = window.PD || {};
   }
 
   function update(player, level, dtFrames, input, particles){
-    if(player.dead) return { justLanded: false, hazard: false, fellOff: false, reachedGoal: false, coinsGot: [] };
+    if(player.dead) return { justLanded: false, hazard: false, fellOff: false, reachedGoal: false, coinsGot: [], stompedEnemy: null };
 
     // "onGround" parpadea false un frame de cada tanto por como cae la
     // gravedad contra el piso exacto (inofensivo para el salto porque usa
@@ -62,6 +61,7 @@ window.PD = window.PD || {};
     if(input.consumeJumpPressed()) player.jumpBufferTimer = JUMP_BUFFER_FRAMES;
     else player.jumpBufferTimer = Math.max(0, player.jumpBufferTimer - dtFrames);
 
+    let bounced = false;
     if(!player.rolling && player.jumpBufferTimer > 0 && player.coyoteTimer > 0){
       player.vy = JUMP_V;
       player.onGround = false;
@@ -107,7 +107,7 @@ window.PD = window.PD || {};
     }
 
     player.animTime += dtFrames;
-    return { justLanded, hazard, fellOff, reachedGoal, coinsGot };
+    return { justLanded, hazard, fellOff, reachedGoal, coinsGot, bounced };
   }
 
   function spawnDust(particles, x, y, n, color){
@@ -118,6 +118,13 @@ window.PD = window.PD || {};
         life: 14 + Math.random()*10, color: color || '#cfd6ff', size: 1 + Math.random()*2
       });
     }
+  }
+
+  // rebote al pisarle la cabeza a un enemigo (mismo impulso que un salto normal)
+  function bounce(player){
+    player.vy = JUMP_V * 0.75;
+    player.onGround = false;
+    player.coyoteTimer = 0;
   }
 
   function draw(ctx, player, camX){
@@ -131,7 +138,7 @@ window.PD = window.PD || {};
       frameIndex = Math.min(sheet.count - 1, Math.floor((1 - player.rollTimer / ROLL_FRAMES) * sheet.count));
     } else if(!player.onGround){
       sheet = player.vy < 0 ? JUMP : FALL;
-      frameIndex = Math.floor(player.animTime * 0.2) % sheet.count;
+      frameIndex = sheet.frame;
     } else if(moving){
       sheet = RUN;
       frameIndex = Math.floor(player.animTime * 0.4) % sheet.count;
@@ -158,5 +165,5 @@ window.PD = window.PD || {};
     ctx.restore();
   }
 
-  window.PD.player = { createPlayer, update, draw, spawnDust };
+  window.PD.player = { createPlayer, update, draw, spawnDust, bounce };
 })();

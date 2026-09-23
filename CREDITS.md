@@ -3,10 +3,7 @@
 ## Juego
 Diseño y programación: **Dev-Sot**
 
-## Personaje
-"Platformer Character Pack" — [merakintsugi](https://merakintsugi.itch.io/platformer-character-pack) (itch.io)
-
-## Entorno, props y música
+## Personaje, enemigos, entorno y música
 "SunnyLand - Pixel Game Art Assets Pack" — [ansimuz](https://ansimuz.itch.io/sunny-land-pixel-game-art) (itch.io), licencia CC0
 
 ## Efectos de sonido

@@ -17,12 +17,14 @@ window.PD = window.PD || {};
     if(loaded >= pending && onDoneCb){ const cb = onDoneCb; onDoneCb = null; cb(); }
   }
 
-  // personaje jugable (Hero Knight - Sven Thole)
-  loadImage('heroIdle', 'assets/sprites/hero/idle.png');
-  loadImage('heroRun', 'assets/sprites/hero/run.png');
-  loadImage('heroJump', 'assets/sprites/hero/jump.png');
-  loadImage('heroFall', 'assets/sprites/hero/fall.png');
-  loadImage('heroRoll', 'assets/sprites/hero/roll.png');
+  // personaje jugable (Foxy - pack SunnyLand de ansimuz, CC0)
+  loadImage('foxIdle', 'assets/sprites/fox/idle.png');
+  loadImage('foxRun', 'assets/sprites/fox/run.png');
+  loadImage('foxJump', 'assets/sprites/fox/jump.png');
+  loadImage('foxRoll', 'assets/sprites/fox/roll.png');
+
+  // enemigos (Opossum - SunnyLand, CC0)
+  loadImage('enemyOpossum', 'assets/sprites/enemies/opossum.png');
 
   // entorno (SunnyLand - ansimuz, CC0)
   loadImage('tileset', 'assets/sprites/tiles/tileset.png');
@@ -33,6 +35,8 @@ window.PD = window.PD || {};
   loadImage('propTree', 'assets/sprites/props/tree.png');
   loadImage('propBush', 'assets/sprites/props/bush.png');
   loadImage('propRock', 'assets/sprites/props/rock.png');
+  loadImage('propTorch', 'assets/sprites/props/torch.png');
+  loadImage('propHouse', 'assets/sprites/props/house.png');
 
   window.PD.assets = {
     get(key){ return images[key] || null; },

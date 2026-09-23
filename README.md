@@ -1,11 +1,38 @@
-# 🏃 Pixel Dash
+# Pixel Dash
 
-Plataformero por niveles en pixel art. Sin build ni dependencias: `<script>` clásicos
-(sin ES modules ni `fetch`) para poder abrir `index.html` con doble clic y que
-funcione igual, o servirlo con cualquier servidor estático.
+Plataformero de niveles cortos en pixel art, hecho con JavaScript plano y `<canvas>` — sin
+frameworks, sin build. Chispa, la última guardiana de los faros, cruza tres islas para
+volver a encender la luz antes de que la Marea Oscura se lo trague todo.
 
-3 niveles cortos, menú de inicio con selección de nivel, pausa, monedas, peligros,
-meta, y una pantalla de créditos para los assets usados (ver [CREDITS.md](CREDITS.md)).
+![Menú principal](docs/screenshots/menu.png)
+
+## Capturas
+
+| Capítulo (historia) | Nivel 1 — día | Nivel 2 — atardecer | Nivel 3 — noche |
+|---|---|---|---|
+| ![Historia](docs/screenshots/story.png) | ![Nivel 1](docs/screenshots/level1-day.png) | ![Nivel 2](docs/screenshots/level2-dusk.png) | ![Nivel 3](docs/screenshots/level3-night.png) |
+
+## El juego
+
+- **3 niveles** con progresión día → atardecer → noche, cada uno con su propia música.
+- **Pantallas de historia** (capítulo) antes de cada nivel, tipo novela visual.
+- **Movimiento fluido**: correr, saltar (con coyote time y buffer de salto) y una
+  **rodada/dash** que esquiva pinchos.
+- **Enemigos** que patrullan — se derrotan saltándoles encima, tocarlos de costado
+  cuesta la partida.
+- Monedas, pinchos, plataformas y una meta por nivel; progreso guardado en el navegador.
+- Menú navegable con teclado, selección de nivel, ajustes de música/efectos por
+  separado, y créditos.
+
+## Controles
+
+| Acción | Teclado | Táctil |
+|---|---|---|
+| Mover | `← →` / `A D` | botones en pantalla |
+| Saltar | `ESPACIO` / `↑` / `W` | botón &#8593; |
+| Rodar (esquiva pinchos) | `SHIFT` / `X` | botón ROD |
+| Pausa | `ESC` / `P` | botón de pausa en el HUD |
+| Navegar el menú | `↑ ↓` + `ENTER` | tap |
 
 ## Ejecutarlo localmente
 
@@ -15,62 +42,54 @@ npx serve .
 python3 -m http.server 8080
 ```
 
-(También puedes abrir `index.html` directo con doble clic — no requiere servidor.)
+También podés abrir `index.html` directo con doble clic — no requiere servidor,
+porque todo el código usa `<script>` clásicos (sin ES modules ni `fetch`).
 
 ## Estructura del código
 
 ```
-index.html        shell: canvas, overlays de menú/pausa/créditos, HUD
-css/style.css      estilos
+index.html          shell: canvas, overlays de menú/historia/pausa/créditos, HUD
+css/style.css        estilos
 js/
-  assets.js        carga de imágenes (personaje, tiles, fondos)
-  audio.js          música/SFX (sintetizado; usa archivos reales si están en assets/audio)
-  input.js          teclado + botones táctiles
-  levels.js         datos de los 3 niveles (grilla de tiles) + parseLevel()
-  tilemap.js         colisión contra la grilla, cámara, dibujo del nivel
-  player.js          física del jugador, animación (idle/walk/salto)
-  scenes.js          máquina de estados: menú → nivel → pausa → victoria/derrota → créditos
-  main.js             bootstrap + loop
+  assets.js          carga de imágenes
+  audio.js            música/SFX (archivos reales, con sintetizador de respaldo)
+  input.js            teclado + botones táctiles
+  levels.js           datos de los 3 niveles (grilla, enemigos, props, historia)
+  tilemap.js           colisión contra la grilla, cámara, dibujo del nivel y props
+  player.js            física del jugador, animación (idle/run/salto/rodada)
+  enemies.js           patrulla de enemigos y colisión (stomp / golpe)
+  scenes.js             máquina de estados: menú → historia → nivel → pausa →
+                         victoria/derrota → créditos
+  main.js               bootstrap + loop
 assets/
-  sprites/player/    idle.png, walk.png (pack de merakintsugi)
-  sprites/tiles/, sprites/props/, backgrounds/, audio/   (para el arte real, ver abajo)
+  sprites/fox/, sprites/enemies/, sprites/tiles/, sprites/props/, backgrounds/, audio/
 ```
 
-Los tiles y peligros hoy se dibujan como rectángulos de color (placeholder) — el
-punto para reemplazarlos por el tileset real es `drawTile()` en `js/tilemap.js`.
+## Créditos
 
-## Subirlo a GitHub
-
-```bash
-git add .
-git commit -m "mensaje"
-git branch -M main
-git remote add origin https://github.com/Dev-Sot/pixel-dash.git
-git push -u origin main
-```
+Todos los assets (personaje, enemigos, entorno, música y efectos) son gratuitos con
+licencia libre — ver [CREDITS.md](CREDITS.md) o el menú **Créditos** dentro del juego.
 
 ## Desplegarlo en Vercel
 
 **Opción A — Dashboard (más fácil):**
 1. Entra a https://vercel.com → New Project.
-2. Importa el repo `pixel-dash` desde GitHub (autoriza el acceso si te lo pide).
-3. Framework Preset: déjalo en **Other** (es sitio estático, no necesita build).
-4. Deploy. Listo, te da una URL tipo `pixel-dash.vercel.app`.
+2. Importa el repo `pixel-dash` desde GitHub.
+3. Framework Preset: **Other** (sitio estático, no necesita build).
+4. Deploy.
 
 **Opción B — CLI:**
 ```bash
 npm i -g vercel
 vercel login
-vercel        # deploy de prueba (preview)
-vercel --prod # deploy a producción
+vercel --prod
 ```
 
-Cada vez que hagas `git push` a `main`, Vercel vuelve a desplegar automáticamente.
+Cada `git push` a `main` vuelve a desplegar automáticamente.
 
-## Editar el juego con Claude en VS Code
+## Editar el juego con Claude
 
-Ideas rápidas para pedirle mejoras a Claude:
-- "Agrega un power-up de escudo que aguante un golpe"
-- "Añade un enemigo que patrulle una plataforma"
-- "Crea una pantalla de selección de personaje"
+Ideas rápidas para pedir mejoras:
+- "Agrega un power-up que aguante un golpe"
+- "Suma un cuarto nivel"
 - "Agrega vibración (navigator.vibrate) al chocar en móvil"

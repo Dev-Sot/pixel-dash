@@ -105,17 +105,19 @@ canvas{
 .menuScene{
   position:relative; flex:1; overflow:hidden;
   background:#0a1420 url('../assets/backgrounds/back.png') center 60%/cover no-repeat;
+  filter:saturate(.8) brightness(.72);
 }
 .menuVignette{
   position:absolute; inset:0;
   background:
     linear-gradient(90deg, rgba(5,6,10,.85) 0%, rgba(5,6,10,0) 26%),
-    linear-gradient(0deg, rgba(5,6,10,.75) 0%, rgba(5,6,10,0) 45%),
-    radial-gradient(120% 90% at 50% 100%, rgba(5,6,10,0) 40%, rgba(5,6,10,.55) 100%);
+    linear-gradient(0deg, rgba(20,8,20,.8) 0%, rgba(20,8,20,0) 48%),
+    linear-gradient(200deg, rgba(255,140,60,.16) 0%, rgba(40,15,60,.35) 55%, rgba(5,6,20,.7) 100%),
+    radial-gradient(120% 90% at 50% 100%, rgba(5,6,10,0) 40%, rgba(5,6,10,.6) 100%);
 }
 .menuGround{
   position:absolute; left:0; right:0; bottom:0; height:14%;
-  background:linear-gradient(180deg,#3f7d3b 0%,#3f7d3b 22%,#6b4a2f 22%,#4a3323 100%);
+  background:linear-gradient(180deg,#2f4d38 0%,#2f4d38 22%,#3a2a20 22%,#241a16 100%);
   box-shadow:0 -2px 0 rgba(0,0,0,.3) inset;
 }
 .menuPalm{
@@ -124,15 +126,23 @@ canvas{
   background-size:contain; background-repeat:no-repeat;
   image-rendering:pixelated; image-rendering:crisp-edges;
   transform:scale(1.5); transform-origin:bottom center;
-  opacity:.85; filter:brightness(.7) drop-shadow(0 4px 4px rgba(0,0,0,.4));
+  opacity:.85; filter:brightness(.55) drop-shadow(0 4px 4px rgba(0,0,0,.4));
+}
+.menuHouse{
+  position:absolute; right:6%; bottom:13.5%; width:87px; height:108px;
+  background-image:url('../assets/sprites/props/house.png');
+  background-size:contain; background-repeat:no-repeat;
+  image-rendering:pixelated; image-rendering:crisp-edges;
+  transform:scale(1.15); transform-origin:bottom center;
+  filter:brightness(.5) drop-shadow(0 6px 5px rgba(0,0,0,.5));
 }
 .menuHero{
-  position:absolute; left:38%; bottom:13%; width:100px; height:55px;
-  background-image:url('../assets/sprites/hero/idle.png');
+  position:absolute; left:38%; bottom:13%; width:33px; height:32px;
+  background-image:url('../assets/sprites/fox/idle.png');
   background-position:0 0; background-repeat:no-repeat;
   image-rendering:pixelated; image-rendering:crisp-edges;
-  transform:scale(2.6); transform-origin:38.7px 52px;
-  filter:drop-shadow(0 6px 4px rgba(0,0,0,.5));
+  transform:scale(4.5); transform-origin:15px 32px;
+  filter:drop-shadow(0 6px 4px rgba(0,0,0,.5)) brightness(.85);
 }
 .menuPanel{
   position:relative; z-index:2; width:clamp(160px,32%,260px);

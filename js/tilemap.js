@@ -6,19 +6,21 @@ window.PD = window.PD || {};
 
 (function(){
   const THEMES = {
-    day:   { tint: null,                    ground:'#6b4a2f', groundTop:'#3f7d3b' },
-    dusk:  { tint: 'rgba(90,40,70,.35)',    ground:'#4a3326', groundTop:'#5c3a55' },
-    night: { tint: 'rgba(10,10,40,.55)',    ground:'#33263a', groundTop:'#2a2050' }
+    day:   { tint: null,                  ground:'#6b4a2f', groundTop:'#3f7d3b',
+             tileTop:{sx:16,sy:16}, tileFill:{sx:16,sy:48} },
+    dusk:  { tint: 'rgba(90,40,70,.35)',  ground:'#4a3326', groundTop:'#5c3a55',
+             tileTop:{sx:16,sy:16}, tileFill:{sx:16,sy:48} },
+    night: { tint: 'rgba(8,8,28,.55)',    ground:'#2a2436', groundTop:'#332c46',
+             tileTop:{sx:288,sy:256}, tileFill:{sx:304,sy:256} } // piedra oscura de ruinas
   };
-  // recortes fijos dentro de tileset.png (grilla de 16px; fila/columna 0 vienen vacias en el PNG)
-  const TILE_TOP = { sx: 16, sy: 16 }; // tierra con pasto
-  const TILE_FILL = { sx: 16, sy: 48 }; // tierra solida (sin pasto)
 
   const PROPS = {
-    palm: { key:'propPalm', nw:79,  nh:176, drawH:70 },
-    tree: { key:'propTree', nw:119, nh:111, drawH:50 },
-    bush: { key:'propBush', nw:46,  nh:28,  drawH:16 },
-    rock: { key:'propRock', nw:28,  nh:15,  drawH:14 }
+    palm:  { key:'propPalm',  nw:79,  nh:176, drawH:70 },
+    tree:  { key:'propTree',  nw:119, nh:111, drawH:50 },
+    bush:  { key:'propBush',  nw:46,  nh:28,  drawH:16 },
+    rock:  { key:'propRock',  nw:28,  nh:15,  drawH:14 },
+    torch: { key:'propTorch', nw:16,  nh:16,  drawH:18 },
+    house: { key:'propHouse', nw:87,  nh:108, drawH:60 }
   };
   const GEM_FW = 15, GEM_FH = 13, GEM_FRAMES = 5;
 
@@ -121,11 +123,11 @@ window.PD = window.PD || {};
     const tileset = PD.assets.get('tileset');
     const tilesetReady = tileset && PD.assets.ready('tileset');
     if(ch === '#'){
-      const src = isTop ? TILE_TOP : TILE_FILL;
+      const src = isTop ? theme.tileTop : theme.tileFill;
       if(tilesetReady) ctx.drawImage(tileset, src.sx, src.sy, 16, 16, px, py, ts, ts);
       else { ctx.fillStyle = theme.ground; ctx.fillRect(px, py, ts, ts); ctx.fillStyle = theme.groundTop; ctx.fillRect(px, py, ts, 3); }
     } else if(ch === '^'){
-      if(tilesetReady) ctx.drawImage(tileset, TILE_FILL.sx, TILE_FILL.sy, 16, 16, px, py, ts, ts);
+      if(tilesetReady) ctx.drawImage(tileset, theme.tileFill.sx, theme.tileFill.sy, 16, 16, px, py, ts, ts);
       else { ctx.fillStyle = theme.ground; ctx.fillRect(px, py, ts, ts); }
       const spikes = PD.assets.get('propSpikes');
       if(spikes && PD.assets.ready('propSpikes')){

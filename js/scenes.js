@@ -10,7 +10,7 @@ window.PD = window.PD || {};
   let state = 'menu';
   let levelIndex = 0;
   let pendingLevelIndex = 0;
-  let levelDef = null, level = null, player = null, particles = [];
+  let levelDef = null, level = null, player = null, particles = [], enemies = [];
   let camX = 0, coinsThisLevel = 0, totalCoinsInLevel = 0;
   let progress = { unlocked: 0, bestCoins: [] };
   let menuIndex = 0;
@@ -96,6 +96,7 @@ window.PD = window.PD || {};
     level = PD.parseLevel(levelDef);
     player = PD.player.createPlayer(level.playerStart.x, level.playerStart.y);
     particles = [];
+    enemies = PD.enemies.createEnemies(levelDef);
     camX = 0;
     coinsThisLevel = 0;
     totalCoinsInLevel = level.coins.length;
@@ -156,6 +157,7 @@ window.PD = window.PD || {};
     if(state !== 'playing') return;
     if(PD.input.consumePausePressed()){ pause(); return; }
 
+    const prevBottom = player.y + player.h;
     const result = PD.player.update(player, level, dtFrames, PD.input, particles);
     if(result.coinsGot.length){
       coinsThisLevel += result.coinsGot.length;
@@ -164,6 +166,14 @@ window.PD = window.PD || {};
     }
     if(result.hazard || result.fellOff){ onHazard(); return; }
     if(result.reachedGoal){ onLevelComplete(); return; }
+
+    PD.enemies.update(enemies, level, dtFrames, particles);
+    const enemyHit = PD.enemies.checkPlayerCollision(player, prevBottom, enemies, particles);
+    if(enemyHit.stomped.length){
+      PD.player.bounce(player);
+      PD.audio.sfxCoin();
+    }
+    if(enemyHit.hit){ onHazard(); return; }
 
     camX = PD.tilemap.cameraX(level, player.x, PD.VIEW_W);
 
@@ -176,6 +186,7 @@ window.PD = window.PD || {};
     if(state !== 'playing' && state !== 'paused') return;
     PD.tilemap.drawBackground(ctx, level, PD.VIEW_W, PD.VIEW_H, camX);
     PD.tilemap.drawLevel(ctx, levelDef, level, camX, PD.VIEW_W, PD.VIEW_H);
+    PD.enemies.draw(ctx, enemies, camX);
     for(const p of particles){
       ctx.globalAlpha = Math.max(0, p.life / 20);
       ctx.fillStyle = p.color;
