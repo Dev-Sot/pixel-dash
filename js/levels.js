@@ -130,20 +130,27 @@ window.PD = window.PD || {};
     // escalon unico (sin hueco) hacia una meseta elevada: el salto ahora
     // tiene mucho margen vertical, cualquier altura de un solo escalon se
     // cruza facil - lo dificil son los huecos, no la subida
+    // los pinchos van una fila ARRIBA de la superficie de la meseta: si van en
+    // la misma fila, como no son solidos, agujerean el piso de la plataforma
+    // los pinchos van cerca del comienzo de cada tramo: si la rodada se
+    // dispara un poco tarde, sigue habiendo meseta solida de sobra despues
+    // (la rodada ahora llega lejos, asi que necesita margen "de salida")
     const PLATEAU = ROWS - 5;
     platform(g, 21, 33, PLATEAU);
-    coinsRow(g, 24, 26, PLATEAU - 1);
-    spikeRow(g, 29, 30, PLATEAU);
+    spikeRow(g, 23, 24, PLATEAU - 1);
+    coinsRow(g, 27, 29, PLATEAU - 1);
     // hueco normal (3, ya probado) dentro de la meseta
     platform(g, 37, 48, PLATEAU);
-    coinsRow(g, 40, 42, PLATEAU - 1);
-    spikeRow(g, 44, 46, PLATEAU);
-    // bajada (escalon, sin hueco exigente) de vuelta al piso normal
-    floorRange(g, 52, 64);
-    spikeRow(g, 55, 58, ROWS-3);
-    coinsRow(g, 55, 58, ROWS-6);
+    spikeRow(g, 39, 40, PLATEAU - 1);
+    coinsRow(g, 43, 45, PLATEAU - 1);
+    // bajada de vuelta al piso normal - runway largo antes del pincho: quien
+    // venga con impulso de un salto anterior necesita espacio para aterrizar
+    // antes de tener que reaccionar de nuevo
+    floorRange(g, 52, 67);
+    spikeRow(g, 62, 65, ROWS-3);
+    coinsRow(g, 62, 65, ROWS-6);
     // hueco final (3, ya probado) antes de la plataforma de la meta
-    floorRange(g, 68, 89);
+    floorRange(g, 71, 89);
     spikeRow(g, 71, 73, ROWS-3);
     coinsRow(g, 71, 73, ROWS-6);
     put(g, 87, ROWS-3, 'F');
@@ -158,11 +165,11 @@ window.PD = window.PD || {};
       ],
       props: [
         { type:'rock', x: 3*16, y: groundY }, { type:'torch', x: 9*16, y: groundY },
-        { type:'rock', x: 43*16, y: groundY }, { type:'torch', x: 53*16, y: groundY },
-        { type:'torch', x: 70*16, y: groundY }, { type:'tree', x: 88*16, y: groundY }
+        { type:'rock', x: 43*16, y: PLATEAU*16 }, { type:'torch', x: 55*16, y: groundY },
+        { type:'torch', x: 73*16, y: groundY }, { type:'tree', x: 88*16, y: groundY }
       ],
       enemies: [
-        { x: 61*16, y: groundY - 12, minX: 59*16, maxX: 64*16 },
+        { x: 54*16, y: groundY - 12, minX: 53*16, maxX: 58*16 },
         { x: 79*16, y: groundY - 12, minX: 75*16, maxX: 85*16 }
       ]
     };

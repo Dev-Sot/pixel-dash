@@ -12,10 +12,10 @@ window.PD = window.PD || {};
   // el zorro no esta centrado en su lienzo de 33x32: ancla real medida en los sprites.
   const PIVOT_X = 15, FEET_Y = 32;
 
-  const GRAVITY = 0.45, JUMP_V = -9.0, MOVE_SPEED = 2.0, MAX_FALL = 7.5, DRAW_H = 26;
+  const GRAVITY = 0.45, JUMP_V = -9.0, MOVE_SPEED = 2.6, MAX_FALL = 7.5, DRAW_H = 26;
   const COYOTE_FRAMES = 6, JUMP_BUFFER_FRAMES = 8;
-  const ROLL_SPEED = 4.0, ROLL_FRAMES = 22, ROLL_COOLDOWN_FRAMES = 16;
-  const FACES_RIGHT_BY_DEFAULT = false; // el sprite mira a la izquierda por defecto
+  const ROLL_SPEED = 5.2, ROLL_FRAMES = 22, ROLL_COOLDOWN_FRAMES = 16;
+  const FACES_RIGHT_BY_DEFAULT = true; // el sprite mira a la derecha por defecto
 
   function createPlayer(x, y){
     return {
