@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PIXEL DASH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game"></canvas>
+
+  <div class="hud hidden" id="hud">
+    <div>
+      <div class="level" id="levelLabel">Nivel 1</div>
+      <div class="coins" id="coinLabel">&#10022; 0/0</div>
+    </div>
+    <div class="topRightBtns">
+      <button class="iconBtn" id="pauseBtn" title="Pausa">&#10074;&#10074;</button>
+      <button class="iconBtn" id="muteBtn" title="Silenciar">&#128266;</button>
+    </div>
+  </div>
+
+  <div class="touchControls">
+    <div class="touchLeft">
+      <div class="tbtn" id="leftBtn">&#8592;</div>
+      <div class="tbtn" id="rightBtn">&#8594;</div>
+    </div>
+    <div class="tbtn" id="jumpBtn">&#8593;</div>
+  </div>
+
+  <!-- MENU -->
+  <div class="overlay" id="startOverlay">
+    <div class="title">PIXEL DASH</div>
+    <div class="sub">
+      <b>&#8592; &#8594; / A D</b> moverte &middot; <b>ESPACIO / &#8593; / TAP</b> saltar<br>
+      Junta las monedas &#10022; y llega a la bandera de meta
+    </div>
+    <div class="row" id="levelSelect"></div>
+    <button class="btn" id="startBtn">JUGAR &#9654;</button>
+    <button class="btn ghost small" id="creditsBtn">CR&Eacute;DITOS</button>
+  </div>
+
+  <!-- CREDITOS -->
+  <div class="overlay hidden" id="creditsOverlay">
+    <div class="title" style="font-size:16px;">CR&Eacute;DITOS</div>
+    <div class="credits">
+      <h4>Juego</h4>
+      Dise&ntilde;o y programaci&oacute;n: Dev-Sot
+      <h4>Personaje</h4>
+      "Platformer Character Pack" &mdash; merakintsugi (itch.io)
+      <h4>Entorno, props y m&uacute;sica</h4>
+      "SunnyLand - Pixel Game Art Assets Pack" &mdash; ansimuz (itch.io), licencia CC0
+      <h4>Efectos de sonido</h4>
+      "Retro 8-Bit SFX Starter Pack" &mdash; TitanAssets (itch.io), licencia CC0
+    </div>
+    <button class="btn ghost small" id="creditsBackBtn">VOLVER</button>
+  </div>
+
+  <!-- PAUSA -->
+  <div class="overlay hidden" id="pauseOverlay">
+    <div class="title" style="font-size:18px;">PAUSA</div>
+    <button class="btn" id="resumeBtn">CONTINUAR</button>
+    <button class="btn ghost" id="restartBtn">REINICIAR NIVEL</button>
+    <button class="btn ghost small" id="menuFromPause">MEN&Uacute;</button>
+  </div>
+
+  <!-- NIVEL COMPLETADO -->
+  <div class="overlay hidden" id="levelCompleteOverlay">
+    <div class="title" style="font-size:18px; color:var(--gold);">&#161;NIVEL SUPERADO!</div>
+    <div class="scoreBig">&#10022; <span id="completeCoins">0/0</span></div>
+    <button class="btn" id="nextLevelBtn">SIGUIENTE NIVEL &#9654;</button>
+    <button class="btn ghost small" id="menuFromComplete">MEN&Uacute;</button>
+  </div>
+
+  <!-- GAME OVER -->
+  <div class="overlay hidden" id="gameOverOverlay">
+    <div class="title" style="font-size:18px; color:var(--danger);">&#128128; PERDISTE</div>
+    <button class="btn" id="retryBtn">REINTENTAR &#8635;</button>
+    <button class="btn ghost small" id="menuFromOver">MEN&Uacute;</button>
+  </div>
+
+  <!-- VICTORIA -->
+  <div class="overlay hidden" id="victoryOverlay">
+    <div class="title" style="font-size:20px; color:var(--gold);">&#127942; &#161;JUEGO COMPLETADO!</div>
+    <div class="sub">Superaste los 3 niveles de Pixel Dash.</div>
+    <button class="btn ghost small" id="menuFromVictory">MEN&Uacute;</button>
+  </div>
+</div>
+
+<script src="js/assets.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/input.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/tilemap.js"></script>
+<script src="js/player.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

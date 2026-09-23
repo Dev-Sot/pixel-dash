@@ -1,0 +1,9 @@
+.vercel
+.DS_Store
+node_modules
+*.log
+
+# packs originales sin procesar (zips, fuentes .aseprite) - no se versionan
+pixel-dash.zip
+assets-raw/
+pixel-dash/
