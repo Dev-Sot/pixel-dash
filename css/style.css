@@ -71,6 +71,18 @@ canvas{
 }
 .credits a{ color:var(--accent); }
 .credits h4{ color:var(--gold); font-size:9px; margin:10px 0 2px; }
+
+.storyOverlay{ background:linear-gradient(180deg, rgba(10,10,20,.75), rgba(10,10,20,.92)); }
+.storyChapter{
+  font-size:clamp(12px,3vw,18px); color:var(--gold); letter-spacing:2px;
+  text-shadow:2px 2px 0 #000;
+}
+.storyText{
+  font-size:clamp(8px,1.7vw,10px); line-height:2.2; color:var(--ink);
+  max-width:480px; text-align:left;
+}
+.storyText p{ margin:0 0 14px; }
+.storyText p.aside{ color:var(--muted); font-size:.9em; font-style:italic; }
 .touchControls{
   position:absolute; bottom:16px; left:0; right:0; display:none;
   justify-content:space-between; align-items:center; padding:0 16px; z-index:6;

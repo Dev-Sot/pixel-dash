@@ -51,6 +51,12 @@ window.PD = window.PD || {};
     return {
       name: 'Nivel 1 - Bosque de entrada', tileSize: 16, rows: ROWS, width: W, grid: g, theme: 'day',
       music: 'assets/audio/music/level1-day.ogg',
+      chapter: 'Capítulo 1',
+      story: [
+        'Hace generaciones, tres faros de cristal mantenían dormida la Marea Oscura que rodea estas islas. Uno a uno, los faros se apagaron, y el mar empezó a tragarse la costa.',
+        'La última guardiana entrenada en el uso de la espada de luz desembarca en el Bosque de Entrada con una sola misión: volver a encender los faros antes de que la marea alcance el corazón del archipiélago.',
+        '(Cuentan que su creador, Dev-Sot, estaba profundamente dormido cuando terminó de programar todo esto. Con un poco de suerte, no se nota.)'
+      ],
       props: [
         { type:'palm', x: 4*16, y: groundY }, { type:'bush', x: 8*16, y: groundY },
         { type:'tree', x: 24*16, y: groundY }, { type:'rock', x: 36*16, y: groundY },
@@ -88,6 +94,11 @@ window.PD = window.PD || {};
     return {
       name: 'Nivel 2 - Colinas rotas', tileSize: 16, rows: ROWS, width: W, grid: g, theme: 'dusk',
       music: 'assets/audio/music/level2-dusk.ogg',
+      chapter: 'Capítulo 2',
+      story: [
+        'El primer faro vuelve a arder. Pero Colinas Rotas ya no es el camino seguro que era: la marea reclamó los puentes, y donde antes crecía musgo ahora crecen pinchos.',
+        'Cada gema que recoge en el camino no es solo un tesoro: es una chispa de luz robada a la oscuridad, la energía que necesita el siguiente faro para volver a arder.'
+      ],
       props: [
         { type:'tree', x: 3*16, y: groundY }, { type:'rock', x: 12*16, y: groundY },
         { type:'palm', x: 35*16, y: groundY }, { type:'rock', x: 48*16, y: groundY },
@@ -131,6 +142,11 @@ window.PD = window.PD || {};
     return {
       name: 'Nivel 3 - Torre final', tileSize: 16, rows: ROWS, width: W, grid: g, theme: 'night',
       music: 'assets/audio/music/level3-night.ogg',
+      chapter: 'Capítulo 3',
+      story: [
+        'En la cima del último faro espera aquello que los apagó la primera vez. No un monstruo cualquiera: el guardián que los faros dejaron atrás, ahora tan hambriento de luz como la propia marea.',
+        'Esta es la última subida.'
+      ],
       props: [
         { type:'rock', x: 3*16, y: groundY }, { type:'tree', x: 9*16, y: groundY },
         { type:'rock', x: 43*16, y: groundY }, { type:'bush', x: 53*16, y: groundY },

@@ -4,11 +4,12 @@ window.PD = window.PD || {};
 (function(){
   const $ = (id) => document.getElementById(id);
   const STORAGE_KEY = 'pixelDashProgress';
-  const OVERLAY_IDS = ['startOverlay','levelSelectOverlay','settingsOverlay','creditsOverlay',
+  const OVERLAY_IDS = ['startOverlay','storyOverlay','levelSelectOverlay','settingsOverlay','creditsOverlay',
     'pauseOverlay','levelCompleteOverlay','gameOverOverlay','victoryOverlay'];
 
   let state = 'menu';
   let levelIndex = 0;
+  let pendingLevelIndex = 0;
   let levelDef = null, level = null, player = null, particles = [];
   let camX = 0, coinsThisLevel = 0, totalCoinsInLevel = 0;
   let progress = { unlocked: 0, bestCoins: [] };
@@ -62,9 +63,26 @@ window.PD = window.PD || {};
       btn.textContent = String(i + 1);
       btn.disabled = locked;
       if(locked) btn.title = 'Bloqueado';
-      btn.addEventListener('click', () => startLevel(i));
+      btn.addEventListener('click', () => showStory(i));
       wrap.appendChild(btn);
     });
+  }
+
+  function showStory(index){
+    pendingLevelIndex = index;
+    const lv = PD.LEVELS[index];
+    state = 'story';
+    $('hud').classList.add('hidden');
+    $('storyChapter').textContent = lv.chapter || lv.name;
+    const textEl = $('storyText');
+    textEl.innerHTML = '';
+    (lv.story || []).forEach(paragraph => {
+      const p = document.createElement('p');
+      if(paragraph.startsWith('(')) p.className = 'aside';
+      p.textContent = paragraph;
+      textEl.appendChild(p);
+    });
+    show('storyOverlay');
   }
 
   function updateSettingsButtons(){
@@ -168,7 +186,8 @@ window.PD = window.PD || {};
   }
 
   function bindButtons(){
-    $('startBtn').addEventListener('click', () => startLevel(progress.unlocked));
+    $('startBtn').addEventListener('click', () => showStory(progress.unlocked));
+    $('storyContinueBtn').addEventListener('click', () => startLevel(pendingLevelIndex));
     $('levelsBtn').addEventListener('click', () => { updateMenuLevelButtons(); show('levelSelectOverlay'); });
     $('levelsBackBtn').addEventListener('click', () => goMenu());
     $('settingsBtn').addEventListener('click', () => { updateSettingsButtons(); show('settingsOverlay'); });
@@ -190,7 +209,7 @@ window.PD = window.PD || {};
     $('resumeBtn').addEventListener('click', () => resume());
     $('restartBtn').addEventListener('click', () => { hideAllOverlays(); $('hud').classList.remove('hidden'); restartLevel(); });
     $('menuFromPause').addEventListener('click', () => goMenu());
-    $('nextLevelBtn').addEventListener('click', () => startLevel(levelIndex + 1));
+    $('nextLevelBtn').addEventListener('click', () => showStory(levelIndex + 1));
     $('menuFromComplete').addEventListener('click', () => goMenu());
     $('retryBtn').addEventListener('click', () => restartLevel());
     $('menuFromOver').addEventListener('click', () => goMenu());
@@ -204,6 +223,10 @@ window.PD = window.PD || {};
 
     menuItems().forEach((el, idx) => el.addEventListener('mouseenter', () => setMenuIndex(idx)));
     window.addEventListener('keydown', (e) => {
+      if(state === 'story'){
+        if(['Enter','Space'].includes(e.code)){ e.preventDefault(); startLevel(pendingLevelIndex); }
+        return;
+      }
       if(state !== 'menu') return;
       if(['ArrowDown','KeyS'].includes(e.code)){ e.preventDefault(); setMenuIndex(menuIndex + 1); PD.audio.sfxUi(); }
       else if(['ArrowUp','KeyW'].includes(e.code)){ e.preventDefault(); setMenuIndex(menuIndex - 1); PD.audio.sfxUi(); }
